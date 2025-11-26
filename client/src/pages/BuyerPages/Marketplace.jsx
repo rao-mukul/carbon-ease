@@ -49,20 +49,39 @@ const Marketplace = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchListings();
-  }, []);
+  }, [currentPage, filters, sortOrder]);
 
   const fetchListings = async () => {
     setLoading(true);
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-      const response = await axios.get(`${API_BASE_URL}/credits`);
-      setAllListings(response.data.data || response.data || []);
-      setFilteredListings(response.data.data || response.data || []);
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+        status: 'Available',
+      };
+      
+      if (filters.title) params.search = filters.title;
+      if (filters.location) params.location = filters.location;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (sortOrder) params.sortBy = `pricePerCredit:${sortOrder}`;
+
+      const response = await axios.get(`${API_BASE_URL}/credits`, { params });
+      const listings = response.data.data || [];
+      setAllListings(listings);
+      setFilteredListings(listings);
+      
+      if (response.data.pagination) {
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalItems(response.data.pagination.totalItems);
+      }
     } catch (err) {
-      logger.error("Failed to load listings:", err);
+      console.error("Failed to load listings:", err);
       setError("Failed to load listings");
     }
     setLoading(false);
@@ -73,36 +92,8 @@ const Marketplace = () => {
   };
 
   const applyFilters = (nextFilters = filters, nextSort = sortOrder) => {
-    let result = [...allListings];
-
-    if (nextFilters.title) {
-      const titleQuery = nextFilters.title.toLowerCase();
-      result = result.filter((listing) =>
-        listing.title?.toLowerCase().includes(titleQuery)
-      );
-    }
-
-    if (nextFilters.location) {
-      const locationQuery = nextFilters.location.toLowerCase();
-      result = result.filter((listing) =>
-        listing.location?.toLowerCase().includes(locationQuery)
-      );
-    }
-
-    if (nextFilters.minPrice) {
-      const min = Number.parseFloat(nextFilters.minPrice) || 0;
-      result = result.filter(
-        (listing) => Number(listing.pricePerCredit) >= min
-      );
-    }
-
-    result.sort((a, b) => {
-      const aPrice = Number(a.pricePerCredit) || 0;
-      const bPrice = Number(b.pricePerCredit) || 0;
-      return nextSort === "asc" ? aPrice - bPrice : bPrice - aPrice;
-    });
-
-    setFilteredListings(result);
+    setFilters(nextFilters);
+    setSortOrder(nextSort);
     setCurrentPage(1);
   };
 
@@ -122,16 +113,9 @@ const Marketplace = () => {
   };
 
   // Pagination Logic
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredListings.length / itemsPerPage)
-  );
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentListings = filteredListings.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentListings = filteredListings;
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage + 1;
+  const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -144,13 +128,6 @@ const Marketplace = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  useEffect(() => {
-    if (!loading && allListings.length && !filteredListings.length) {
-      applyFilters(filters, sortOrder);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allListings]);
 
   const marketInsights = useMemo(() => {
     if (!allListings.length) {
@@ -483,9 +460,8 @@ const Marketplace = () => {
 
                 <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-border/70 bg-card/90 p-4 shadow-lg sm:flex-row">
                   <p className="text-sm text-muted-foreground">
-                    Showing {indexOfFirstItem + 1}-
-                    {Math.min(indexOfLastItem, filteredListings.length)} of{" "}
-                    {filteredListings.length} listings
+                    Showing {indexOfFirstItem}-{indexOfLastItem} of{" "}
+                    {totalItems} listings
                   </p>
                   <div className="flex items-center gap-3">
                     <Button

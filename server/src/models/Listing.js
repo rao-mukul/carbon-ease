@@ -44,6 +44,13 @@ const CarbonCreditSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
+// Text index for search functionality
+CarbonCreditSchema.index({ 
+  title: "text", 
+  description: "text", 
+  location: "text" 
+});
+
 // Auto-calculate total price before saving
 CarbonCreditSchema.pre("save", function (next) {
   this.totalPrice = this.quantity * this.pricePerCredit;

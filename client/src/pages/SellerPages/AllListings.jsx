@@ -41,8 +41,9 @@ const ListingsPage = () => {
 
       setIsLoading(true);
       try {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
         const response = await axios.get(
-          "http://localhost:3000/api/credits/posted-data",
+          `${API_BASE_URL}/credits/posted-data`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -110,8 +111,9 @@ const ListingsPage = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       await axios.put(
-        `http://localhost:3000/api/listings/${id}`,
+        `${API_BASE_URL}/listings/${id}`,
         { status },
         {
           headers: {

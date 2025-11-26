@@ -10,6 +10,7 @@ import {
   getPostedListingForUser,
   makePayment,
   getTransactionData,
+  getReceipt,
 } from "../controllers/listingController.js";
 
 import authMiddleware from "../middlewares/authMiddleware.js";
@@ -26,6 +27,7 @@ router.post("/post", authMiddleware, validate(createListingSchema), createListin
 router.get("/posted-data", authMiddleware, getPostedListingForUser);
 router.post("/payment", authMiddleware, validate(paymentSchema), makePayment);
 router.get("/payment-data", authMiddleware, getTransactionData);
+router.get("/receipt/:transactionId", authMiddleware, getReceipt);
 
 // Public routes
 router.get("/", getListings);

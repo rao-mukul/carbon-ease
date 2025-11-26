@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Leaf, Sparkles, User } from "lucide-react";
+import { CheckCircle, Clock, Leaf, Sparkles, User, BarChart3 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
@@ -99,6 +99,15 @@ const BuyerDashboard = () => {
                   <Link to="/market">Browse marketplace</Link>
                 </Button>
                 <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-full px-6 text-sm font-semibold"
+                >
+                  <Link to="/buyer-analytics">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Analytics
+                  </Link>
+                </Button>
                   asChild
                   variant="outline"
                   className="rounded-full border-border/70 text-sm font-semibold"

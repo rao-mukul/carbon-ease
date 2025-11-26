@@ -4,6 +4,7 @@ import {
   verifyOTP,
   login,
   profile,
+  updateProfile,
 } from "../controllers/authController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
 import { validate } from "../middlewares/validateMiddleware.js";
@@ -21,5 +22,6 @@ router.post("/register", validate(registerSchema), rateLimiter(5, 15 * 60 * 1000
 router.post("/verify-otp", validate(verifyOTPSchema), rateLimiter(3, 15 * 60 * 1000, "verify-otp"), verifyOTP);
 router.post("/login", validate(loginSchema), rateLimiter(5, 15 * 60 * 1000, "login"), login);
 router.get("/profile", authMiddleware, profile);
+router.patch("/profile", authMiddleware, updateProfile);
 
 export default router;

@@ -24,6 +24,10 @@ import TransactionPage from "./pages/Transaction/TransactionPage";
 import TransactionListing from "./pages/BuyerPages/TransactionListing";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
+import AdminDashboard from "./pages/AdminDashboard";
+import SellerAnalytics from "./pages/SellerPages/SellerAnalytics";
+import BuyerAnalytics from "./pages/BuyerPages/BuyerAnalytics";
+import ReceiptViewer from "./pages/ReceiptViewer";
 
 const App = () => {
   return (
@@ -69,6 +73,10 @@ const App = () => {
                 />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/seller" element={<SellerDashboardLayout />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/seller-analytics" element={<SellerAnalytics />} />
+                <Route path="/buyer-analytics" element={<BuyerAnalytics />} />
+                <Route path="/receipt/:transactionId" element={<ReceiptViewer />} />
               </Route>
 
               {/* Default Route */}

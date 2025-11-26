@@ -20,6 +20,7 @@ import {
   PackageCheck,
   TrendingUp,
   User,
+  BarChart3,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -99,6 +100,57 @@ const SellerDashboard = () => {
       title: "Revenue",
       value: metrics.totalRevenue,
       icon: <TrendingUp className="h-4 w-4 text-primary" />,
+      isCurrency: true,
+      description: "Total earnings from completed sales",
+    },
+    {
+      title: "Credits sold",
+      value: metrics.totalCreditsSold,
+      icon: <PackageCheck className="h-4 w-4 text-primary" />,
+      description: "Volume moved across all transactions",
+    },
+    {
+      title: "Orders",
+      value: metrics.totalOrders,
+      icon: <CheckCircle className="h-4 w-4 text-primary" />,
+      description: "Fulfilled and in-progress deals",
+    },
+    {
+      title: "Avg deal size",
+      value: metrics.avgDealSize,
+      icon: <User className="h-4 w-4 text-primary" />,
+      isCurrency: true,
+      description: "Mean revenue per transaction",
+    },
+  ];
+
+  return (
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-background/95 to-muted/30">
+      <section className="border-b border-border/60 bg-card/40 px-8 py-10 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Badge
+                variant="secondary"
+                className="w-fit bg-primary/15 text-primary"
+              >
+                Seller Portal
+              </Badge>
+              <h1 className="text-2xl font-semibold text-foreground md:text-3xl">
+                Sales performance dashboard
+              </h1>
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                Track revenue, credits sold, and buyer trends for your carbon
+                offset portfolio.
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/seller-analytics">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Analytics
+              </Link>
+            </Button>
+          </div>
       description: "Total confirmed transactions this month",
       isCurrency: true,
     },

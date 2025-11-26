@@ -3,6 +3,8 @@ import transactionsModel from "../models/transactionsModel.js";
 import userModel from "../models/userModel.js";
 import logger from "../utils/logger.js";
 import mongoose from "mongoose";
+import { sendNotificationEmail, emailTemplates } from "../utils/emailNotifications.js";
+import { generateReceiptData } from "../utils/receiptGenerator.js";
 
 // ✅ Create a new listing
 export const createListing = async (req, res) => {
@@ -37,13 +39,61 @@ export const createListing = async (req, res) => {
   }
 };
 
-// ✅ Get all listings
+// ✅ Get all listings with pagination and search
 export const getListings = async (req, res) => {
   try {
-    const listings = await CarbonCredit.find();
-    res.status(200).json(listings);
+    const { 
+      page = 1, 
+      limit = 10, 
+      search = "",
+      status = "Available"
+    } = req.query;
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    let query = {};
+    
+    // Add search if provided
+    if (search) {
+      query.$text = { $search: search };
+    }
+    
+    // Filter by status
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    // Get total count for pagination
+    const total = await CarbonCredit.countDocuments(query);
+    
+    // Fetch listings with pagination
+    const listings = await CarbonCredit.find(query)
+      .populate("seller", "email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    res.status(200).json({
+      success: true,
+      data: listings,
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+        itemsPerPage: limitNum,
+        hasNextPage: pageNum < Math.ceil(total / limitNum),
+        hasPrevPage: pageNum > 1,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error fetching listings:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch listings",
+      error: error.message 
+    });
   }
 };
 
@@ -69,7 +119,15 @@ export const filterListings = async (req, res) => {
       minQuantity,
       maxQuantity,
       verifiedBy,
+      page = 1,
+      limit = 10,
+      sortBy = "createdAt",
+      sortOrder = "desc"
     } = req.query;
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
 
     let filter = {};
 
@@ -90,11 +148,31 @@ export const filterListings = async (req, res) => {
       if (maxQuantity) filter.quantity.$lte = Number(maxQuantity);
     }
 
-    const listings = await CarbonCredit.find(filter).populate("seller", "email");
+    // Get total count
+    const total = await CarbonCredit.countDocuments(filter);
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+
+    const listings = await CarbonCredit.find(filter)
+      .populate("seller", "email")
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum);
+
     res.status(200).json({
       success: true,
-      count: listings.length,
       data: listings,
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+        itemsPerPage: limitNum,
+        hasNextPage: pageNum < Math.ceil(total / limitNum),
+        hasPrevPage: pageNum > 1,
+      },
+      filters: filter,
     });
   } catch (error) {
     logger.error("Error filtering listings:", error);
@@ -302,6 +380,30 @@ export const makePayment = async (req, res) => {
     // Commit the transaction
     await session.commitTransaction();
 
+    // Send email notifications (non-blocking)
+    const populatedTransaction = await transactionsModel
+      .findById(transaction._id)
+      .populate("listing", "title")
+      .populate("buyer", "email")
+      .populate("seller", "email");
+
+    // Send purchase confirmation to buyer
+    sendNotificationEmail(
+      buyer.email,
+      emailTemplates.purchaseConfirmation,
+      populatedTransaction
+    ).catch(err => logger.error("Failed to send purchase email:", err));
+
+    // Send sale notification to seller
+    const seller = await userModel.findById(listing.seller);
+    if (seller) {
+      sendNotificationEmail(
+        seller.email,
+        emailTemplates.listingSold,
+        populatedTransaction
+      ).catch(err => logger.error("Failed to send seller email:", err));
+    }
+
     logger.info(`Payment successful: ${transaction._id}`, {
       buyer: buyerId,
       seller: listing.seller,
@@ -329,5 +431,47 @@ export const makePayment = async (req, res) => {
     });
   } finally {
     session.endSession();
+  }
+};
+
+// ✅ Get transaction receipt
+export const getReceipt = async (req, res) => {
+  try {
+    const { transactionId } = req.params;
+    const userId = req.user.userId;
+
+    const transaction = await transactionsModel
+      .findById(transactionId)
+      .populate("buyer", "email name")
+      .populate("seller", "email name")
+      .populate("listing", "title description projectType location");
+
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        message: "Transaction not found",
+      });
+    }
+
+    // Verify user has access to this receipt
+    if (
+      transaction.buyer._id.toString() !== userId &&
+      transaction.seller._id.toString() !== userId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    const receipt = generateReceiptData(transaction);
+
+    res.json(receipt);
+  } catch (error) {
+    logger.error("Error generating receipt:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate receipt",
+    });
   }
 };

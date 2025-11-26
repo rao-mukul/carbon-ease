@@ -14,38 +14,44 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Clock, Leaf, Sparkles } from "lucide-react";
+import { CheckCircle, Clock, Leaf, Sparkles, Download } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const TransactionListing = () => {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [recentPurchases, setRecentPurchases] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   useEffect(() => {
     const fetchListings = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(
-          // "http://localhost:3000/api/credits/payment-data",
-          "http://localhost:3000/api/credits/payment-data",
+          `${API_BASE_URL}/credits/payment-data`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Include Bearer token
+              Authorization: `Bearer ${token}`,
             },
           }
         );
 
         setRecentPurchases(response.data.transactions);
-        // setListings(response.data.posted);
       } catch (error) {
         console.error("Error fetching listings:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchListings();
-  }, []);
+  }, [token]);
   const totals = useMemo(() => {
     if (!recentPurchases.length) {
       return { totalCredits: 0, totalSpent: 0 };
@@ -123,27 +129,33 @@ const TransactionListing = () => {
 
         <section className="mt-10 space-y-10">
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {overviewData.map((item) => (
-              <Card
-                key={item.title}
-                className="border border-border/70 bg-card/90 shadow-xl"
-              >
-                <CardContent className="space-y-3 p-6">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                    {item.icon}
-                    {item.title}
-                  </div>
-                  <p className="text-3xl font-semibold text-foreground">
-                    {item.isCurrency
-                      ? `₹${Number(item.value || 0).toLocaleString()}`
-                      : Number(item.value || 0).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.subtext}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-32" />
+              ))
+            ) : (
+              overviewData.map((item) => (
+                <Card
+                  key={item.title}
+                  className="border border-border/70 bg-card/90 shadow-xl"
+                >
+                  <CardContent className="space-y-3 p-6">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                      {item.icon}
+                      {item.title}
+                    </div>
+                    <p className="text-3xl font-semibold text-foreground">
+                      {item.isCurrency
+                        ? `₹${Number(item.value || 0).toLocaleString()}`
+                        : Number(item.value || 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {item.subtext}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           <Card className="border border-border/70 bg-card/90 shadow-2xl">
@@ -172,10 +184,19 @@ const TransactionListing = () => {
                     <TableHead>Seller</TableHead>
                     <TableHead>Credits</TableHead>
                     <TableHead>Amount (₹)</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentPurchases.length > 0 ? (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-10">
+                        <div className="flex justify-center">
+                          <Skeleton className="h-6 w-full" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : recentPurchases.length > 0 ? (
                     recentPurchases.map((order) => (
                       <TableRow key={order._id}>
                         <TableCell className="font-mono text-sm text-muted-foreground">
@@ -190,12 +211,22 @@ const TransactionListing = () => {
                         <TableCell className="text-sm font-semibold text-foreground">
                           ₹{Number(order.quantity || 0).toLocaleString()}
                         </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/receipt/${order._id}`)}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Receipt
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={4}
+                        colSpan={5}
                         className="py-10 text-center text-sm text-muted-foreground"
                       >
                         No transactions recorded yet. Visit the marketplace to

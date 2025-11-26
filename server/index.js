@@ -18,6 +18,8 @@ app.use(express.json());
 // import routes
 import userRoutes from "./src/routes/authRoute.js";
 import carbonCreditRoutes from "./src/routes/listingRoute.js";
+import adminRoutes from "./src/routes/adminRoute.js";
+import analyticsRoutes from "./src/routes/analyticsRoute.js";
 
 app.use((req, res, next) => {
   logger.info(`Received ${req.method} request to ${req.url}`);
@@ -27,6 +29,8 @@ app.use((req, res, next) => {
 
 app.use("/api/auth", userRoutes);
 app.use("/api/credits", carbonCreditRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 3000;
