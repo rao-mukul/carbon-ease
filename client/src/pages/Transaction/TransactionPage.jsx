@@ -14,7 +14,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast, Toaster } from "sonner";
 import {
   CreditCard,
-  IndianRupee,
   ShieldCheck,
   Smartphone,
   CheckCircle2,
@@ -49,14 +48,14 @@ const TransactionPage = () => {
   const handlePayment = async () => {
     try {
       const payload = {
-        amount: totalPrice,
-        quantity: amount,
-        sellerName: title,
+        listingId: id,
+        quantity: Number(amount),
+        paymentMethod,
       };
 
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const response = await axios.post(
-        // "http://localhost:3000/api/credits/payment",
-        "http://localhost:3000/api/credits/payment",
+        `${API_BASE_URL}/credits/payment`,
         payload,
         {
           headers: {
@@ -66,7 +65,7 @@ const TransactionPage = () => {
         }
       );
 
-      if (response.status === 200) {
+      if (response.status === 200 && response.data.success) {
         toast.success(
           <div className="flex items-center gap-3">
             <img

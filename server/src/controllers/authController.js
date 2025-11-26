@@ -71,10 +71,25 @@ export const login = async (req, res) => {
 
 export const profile = async (req, res) => {
   try {
-    const userDetails = await User.findOne({ _id: req.user.userId });
-    return res.json({ user: userDetails });
+    const userDetails = await User.findById(req.user.userId).select("-password");
+    
+    if (!userDetails) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+    
+    return res.json({ 
+      success: true,
+      user: userDetails 
+    });
   } catch (error) {
-    logger.error(error, "profile");
+    logger.error("Error fetching profile:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch profile" 
+    });
   }
 };
 

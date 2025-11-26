@@ -57,10 +57,12 @@ const Marketplace = () => {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3000/api/credits");
-      setAllListings(response.data || []);
-      setFilteredListings(response.data || []);
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+      const response = await axios.get(`${API_BASE_URL}/credits`);
+      setAllListings(response.data.data || response.data || []);
+      setFilteredListings(response.data.data || response.data || []);
     } catch (err) {
+      logger.error("Failed to load listings:", err);
       setError("Failed to load listings");
     }
     setLoading(false);
@@ -88,7 +90,7 @@ const Marketplace = () => {
     }
 
     if (nextFilters.minPrice) {
-      const min = parseFloat(nextFilters.minPrice) || 0;
+      const min = Number.parseFloat(nextFilters.minPrice) || 0;
       result = result.filter(
         (listing) => Number(listing.pricePerCredit) >= min
       );
@@ -401,8 +403,8 @@ const Marketplace = () => {
           <section className="space-y-6">
             {loading ? (
               <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {[...Array(6)].map((_, idx) => (
-                  <Skeleton key={idx} className="h-64 w-full rounded-2xl" />
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <Skeleton key={`skeleton-${idx}`} className="h-64 w-full rounded-2xl" />
                 ))}
               </div>
             ) : error ? (

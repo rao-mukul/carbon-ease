@@ -106,7 +106,8 @@ const FormComponent = ({ isOpen, setIsOpen }) => {
         },
       };
 
-      await axios.post("http://localhost:3000/api/credits/post", payload, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+      await axios.post(`${API_BASE_URL}/credits/post`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

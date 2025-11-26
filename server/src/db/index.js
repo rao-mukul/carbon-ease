@@ -3,12 +3,11 @@ import logger from "../utils/logger.js";
 
 const connect = async () => {
   try {
-    // console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
-    // await mongoose.connect(process.env.MONGODB_URI);
-    await mongoose.connect("mongodb://localhost:27017/carbonEase");
-    logger.info("MongoDb connected");
+    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/carbonEase";
+    await mongoose.connect(mongoUri);
+    logger.info("MongoDb connected successfully");
   } catch (error) {
-    logger.error("MongoDb error", error);
+    logger.error("MongoDb connection error:", error);
     process.exit(1);
   }
 };

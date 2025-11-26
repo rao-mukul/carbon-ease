@@ -1,30 +1,31 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { getProfile, logoutUser } from "../services/authService";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [totalCredits, setTotalCredits] = useState(0);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const { data } = await getProfile();
-        console.log("data", data);
         setUser(data.user);
       } catch {
         logoutUser();
       }
     };
     if (token) fetchUser();
-  }, []);
+  }, [token]);
+
+  const value = useMemo(
+    () => ({ user, setUser, logoutUser, token }),
+    [user, token]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, logoutUser, token, setTotalCredits }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,22 +1,39 @@
-import CarbonCredit from "../models/Listing.js"; // Import model
+import CarbonCredit from "../models/Listing.js";
 import transactionsModel from "../models/transactionsModel.js";
 import userModel from "../models/userModel.js";
 import logger from "../utils/logger.js";
+import mongoose from "mongoose";
 
 // ✅ Create a new listing
 export const createListing = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const newListing = new CarbonCredit(req.body);
-    const listingData = await newListing.save();
-    const updatedUser = await userModel.findByIdAndUpdate(
+    const listingData = {
+      ...req.body,
+      seller: userId,
+    };
+    
+    const newListing = new CarbonCredit(listingData);
+    const savedListing = await newListing.save();
+    
+    await userModel.findByIdAndUpdate(
       userId,
-      { $push: { posted: listingData._id } },
+      { $push: { posted: savedListing._id } },
       { new: true, runValidators: true }
     );
-    res.status(201).json(newListing);
+    
+    res.status(201).json({
+      success: true,
+      message: "Listing created successfully",
+      data: savedListing,
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    logger.error("Error creating listing:", error);
+    res.status(400).json({ 
+      success: false,
+      message: "Failed to create listing",
+      error: error.message 
+    });
   }
 };
 
@@ -41,7 +58,6 @@ export const getListingById = async (req, res) => {
   }
 };
 
-// ✅ Get filtered listings
 export const filterListings = async (req, res) => {
   try {
     const {
@@ -55,25 +71,38 @@ export const filterListings = async (req, res) => {
       verifiedBy,
     } = req.query;
 
-    // Create a filter object dynamically
     let filter = {};
 
     if (projectType) filter.projectType = projectType;
     if (status) filter.status = status;
-    // if (location) filter.location = location;
-    // if (verifiedBy) filter["verification.verifiedBy"] = verifiedBy;
-    if (minPrice || maxPrice) filter.pricePerCredit = {};
-    if (minPrice) filter.pricePerCredit.$gte = Number(minPrice);
-    if (maxPrice) filter.pricePerCredit.$lte = Number(maxPrice);
-    if (minQuantity || maxQuantity) filter.quantity = {};
-    if (minQuantity) filter.quantity.$gte = Number(minQuantity);
-    if (maxQuantity) filter.quantity.$lte = Number(maxQuantity);
+    if (location) filter.location = { $regex: location, $options: "i" };
+    if (verifiedBy) filter["verification.verifiedBy"] = verifiedBy;
+    
+    if (minPrice || maxPrice) {
+      filter.pricePerCredit = {};
+      if (minPrice) filter.pricePerCredit.$gte = Number(minPrice);
+      if (maxPrice) filter.pricePerCredit.$lte = Number(maxPrice);
+    }
+    
+    if (minQuantity || maxQuantity) {
+      filter.quantity = {};
+      if (minQuantity) filter.quantity.$gte = Number(minQuantity);
+      if (maxQuantity) filter.quantity.$lte = Number(maxQuantity);
+    }
 
-    // Fetch listings based on filters
-    const listings = await CarbonCredit.find(filter);
-    res.status(200).json(listings);
+    const listings = await CarbonCredit.find(filter).populate("seller", "email");
+    res.status(200).json({
+      success: true,
+      count: listings.length,
+      data: listings,
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error filtering listings:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to filter listings",
+      error: error.message 
+    });
   }
 };
 
@@ -108,30 +137,17 @@ export const deleteListing = async (req, res) => {
 export const deleteAllListings = async (req, res) => {
   try {
     await CarbonCredit.deleteMany({});
-    res.status(200).json({ message: "All listings deleted successfully" });
+    res.status(200).json({ 
+      success: true,
+      message: "All listings deleted successfully" 
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-
-export const filterListing = async (req, res) => {
-  try {
-    const { projectType, location, minPrice, maxPrice, status } = req.query;
-
-    let filter = {};
-
-    if (projectType) filter.projectType = projectType;
-    if (location) filter.location = location; // Case-insensitive search
-    if (status) filter.status = status;
-    if (minPrice || maxPrice) filter.pricePerCredit = {};
-    if (minPrice) filter.pricePerCredit.$gte = Number(minPrice);
-    if (maxPrice) filter.pricePerCredit.$lte = Number(maxPrice);
-
-    const listings = await CarbonCredit.find(filter);
-    res.status(200).json(listings);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error deleting all listings:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Failed to delete listings",
+      error: error.message 
+    });
   }
 };
 
@@ -140,53 +156,178 @@ export const getPostedListingForUser = async (req, res) => {
     const userId = req.user.userId;
     const postedDataByUser = await userModel
       .findById(userId)
-      .populate({
-        path: "posted",
-      })
+      .populate("posted")
       .select("posted");
-    console.log(userId);
 
-    return res.status(200).json(postedDataByUser);
+    if (!postedDataByUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: postedDataByUser,
+    });
   } catch (error) {
-    logger.error("Get posted data", error);
+    logger.error("Error fetching posted listings:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch posted listings",
+    });
   }
 };
 
 export const getTransactionData = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const postedDataByUser = await userModel
+    const userData = await userModel
       .findById(userId)
       .populate({
         path: "transactions",
+        populate: [
+          { path: "listing", select: "title description projectType" },
+          { path: "seller", select: "email" },
+        ],
       })
-      .select("transactions");
+      .select("transactions totalSpents");
 
-    return res.status(200).json(postedDataByUser);
+    if (!userData) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: userData,
+    });
   } catch (error) {
-    logger.error("Get posted data", error);
+    logger.error("Error fetching transaction data:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch transaction data",
+    });
   }
 };
 
 export const makePayment = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const userId = req.user.userId;
-    const { amount, quantity, sellerName } = req.body;
-    console.log("amount", amount, quantity, sellerName);
-    const data = new transactionsModel({
-      amount,
-      quantity,
-      userId: userId,
-      sellerName,
-    });
-    await data.save();
-    const updatedUser = await userModel.findByIdAndUpdate(
-      userId,
-      { $push: { transactions: data._id } },
-      { new: true, runValidators: true }
+    const buyerId = req.user.userId;
+    const { listingId, quantity, paymentMethod } = req.body;
+
+    // 1. Validate buyer exists
+    const buyer = await userModel.findById(buyerId).session(session);
+    if (!buyer) {
+      throw new Error("Buyer not found");
+    }
+
+    // 2. Find and validate listing
+    const listing = await CarbonCredit.findById(listingId).session(session);
+    if (!listing) {
+      throw new Error("Listing not found");
+    }
+
+    if (listing.status !== "Available") {
+      throw new Error("Listing is not available for purchase");
+    }
+
+    if (listing.quantity < quantity) {
+      throw new Error(`Insufficient credits available. Only ${listing.quantity} credits remaining.`);
+    }
+
+    // 3. Prevent buying own credits
+    if (listing.seller.toString() === buyerId) {
+      throw new Error("You cannot purchase your own credits");
+    }
+
+    // 4. Calculate amounts
+    const pricePerCredit = listing.pricePerCredit;
+    const totalAmount = pricePerCredit * quantity;
+
+    // 5. Update listing quantity atomically
+    const newQuantity = listing.quantity - quantity;
+    const newStatus = newQuantity === 0 ? "Sold" : "Available";
+
+    await CarbonCredit.findByIdAndUpdate(
+      listingId,
+      {
+        $inc: { quantity: -quantity },
+        status: newStatus,
+        updatedAt: Date.now(),
+      },
+      { session, new: true }
     );
-    return res.status(200).json(data);
+
+    // 6. Create transaction record
+    const transaction = new transactionsModel({
+      listing: listingId,
+      buyer: buyerId,
+      seller: listing.seller,
+      quantity,
+      pricePerCredit,
+      totalAmount,
+      paymentStatus: "completed",
+      paymentMethod: paymentMethod || "other",
+      transactionHash: `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      completedAt: Date.now(),
+    });
+
+    await transaction.save({ session });
+
+    // 7. Update buyer's transaction history and spending
+    await userModel.findByIdAndUpdate(
+      buyerId,
+      {
+        $push: { transactions: transaction._id },
+        $inc: { totalSpents: totalAmount },
+      },
+      { session }
+    );
+
+    // 8. Update seller's credits sold
+    await userModel.findByIdAndUpdate(
+      listing.seller,
+      {
+        $inc: { totalCredits: quantity },
+      },
+      { session }
+    );
+
+    // Commit the transaction
+    await session.commitTransaction();
+
+    logger.info(`Payment successful: ${transaction._id}`, {
+      buyer: buyerId,
+      seller: listing.seller,
+      amount: totalAmount,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment completed successfully",
+      data: {
+        transactionId: transaction._id,
+        transactionHash: transaction.transactionHash,
+        quantity,
+        totalAmount,
+        creditsRemaining: newQuantity,
+      },
+    });
   } catch (error) {
-    logger.info("Error in makePayment", error);
+    await session.abortTransaction();
+    logger.error("Payment failed:", error);
+    
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Payment failed",
+    });
+  } finally {
+    session.endSession();
   }
 };

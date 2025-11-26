@@ -3,11 +3,16 @@ import mongoose from "mongoose";
 const CarbonCreditSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  // user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  quantity: { type: Number, min: 1, required: true },
-  pricePerCredit: { type: Number, min: 0, required: true },
-  totalPrice: { type: Number, min: 0 }, // Will be auto-calculated
-  location: { type: String, required: true },
+  seller: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "User", 
+    required: true,
+    index: true
+  },
+  quantity: { type: Number, min: 0, required: true },
+  pricePerCredit: { type: Number, min: 0, required: true, index: true },
+  totalPrice: { type: Number, min: 0 },
+  location: { type: String, required: true, index: true },
   projectType: {
     type: String,
     enum: [
@@ -15,9 +20,11 @@ const CarbonCreditSchema = new mongoose.Schema({
       "Renewable Energy",
       "Waste Management",
       "Agriculture",
+      "Blue Carbon",
       "Others",
     ],
     required: true,
+    index: true
   },
   verification: {
     verifiedBy: {
@@ -31,9 +38,9 @@ const CarbonCreditSchema = new mongoose.Schema({
     type: String,
     enum: ["Available", "Sold", "Pending"],
     default: "Available",
-    index: true, // Speeds up queries on status
+    index: true,
   },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now, index: true },
   updatedAt: { type: Date, default: Date.now },
 });
 

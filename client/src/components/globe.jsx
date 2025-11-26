@@ -40,9 +40,12 @@ export function Globe({
   let phi = 0;
   let width = 0;
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const pointerInteracting = useRef(null);
   const pointerInteractionMovement = useRef(0);
   const [r, setR] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const globeInstanceRef = useRef(null);
 
   const updatePointerInteraction = (value) => {
     pointerInteracting.current = value;
@@ -72,23 +75,63 @@ export function Globe({
     }
   };
 
+  // Intersection Observer to detect when globe is visible
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+        rootMargin: '50px', // Start loading slightly before it comes into view
+      }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
+  // Only initialize globe when visible
+  useEffect(() => {
+    if (!isVisible || !canvasRef.current) return;
+
     window.addEventListener("resize", onResize);
     onResize();
 
-    const globe = createGlobe(canvasRef.current, {
+    globeInstanceRef.current = createGlobe(canvasRef.current, {
       ...config,
       width: width * 2,
       height: width * 2,
       onRender,
     });
 
-    setTimeout(() => (canvasRef.current.style.opacity = "1"));
-    return () => globe.destroy();
-  }, []);
+    setTimeout(() => {
+      if (canvasRef.current) {
+        canvasRef.current.style.opacity = "1";
+      }
+    });
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (globeInstanceRef.current) {
+        globeInstanceRef.current.destroy();
+        globeInstanceRef.current = null;
+      }
+    };
+  }, [isVisible, onRender]);
 
   return (
     (<div
+      ref={containerRef}
       className={cn("absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]", className)}>
       <canvas
         className={cn(

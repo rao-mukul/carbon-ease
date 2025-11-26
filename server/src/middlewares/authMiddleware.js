@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader?.split(" ")[1];
 
   if (!token) {
     logger.warn("Access attempt without valid token!");
@@ -16,8 +16,8 @@ const authMiddleware = (req, res, next) => {
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       logger.warn("Invalid token!");
-      return res.status(429).json({
-        message: "Invalid token!",
+      return res.status(403).json({
+        message: "Invalid or expired token",
         success: false,
       });
     }

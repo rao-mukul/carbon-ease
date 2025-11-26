@@ -43,8 +43,9 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 };
 
 userSchema.methods.generateAuthToken = function () {
+  const expiry = process.env.TOKEN_EXPIRY || "7d";
   return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: expiry,
   });
 };
 
