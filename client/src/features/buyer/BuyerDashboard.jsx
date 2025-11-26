@@ -1,5 +1,5 @@
-import { BuyerSidebar } from "@/components/BuyerSidebar";
-import BuyerDashboard from "@/pages/BuyerPages/BuyerDashboard";
+import { BuyerSidebar } from "@/components/layout";
+import BuyerDashboard from "@/features/buyer/pages/BuyerDashboard";
 
 export default function BuyerDashboardLayout() {
   return (

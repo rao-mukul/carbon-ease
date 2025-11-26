@@ -1,8 +1,8 @@
-import AccordionSection from "./LandingPage/AccordionSection";
-import { FactSection } from "./LandingPage/FactSection";
-import { FeatureSection } from "./LandingPage/FeatureSection";
-import { GlobeSection } from "./LandingPage/GlobeSection";
-import StatsSection from "./LandingPage/StatsSection";
+import AccordionSection from "./sections/AccordionSection";
+import { FactSection } from "./sections/FactSection";
+import { FeatureSection } from "./sections/FeatureSection";
+import { GlobeSection } from "./sections/GlobeSection";
+import StatsSection from "./sections/StatsSection";
 import GeminiChatbot from "@/components/common/GeminiChatbot";
 
 const LandingPage = () => {

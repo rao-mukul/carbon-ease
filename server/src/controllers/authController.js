@@ -2,7 +2,6 @@ import User from "../models/userModel.js";
 import OTP from "../models/otpModel.js";
 import sendMail from "../utils/mailer.js";
 import logger from "../utils/logger.js";
-import { sendNotificationEmail } from "../utils/emailNotifications.js";
 
 export const register = async (req, res) => {
   try {

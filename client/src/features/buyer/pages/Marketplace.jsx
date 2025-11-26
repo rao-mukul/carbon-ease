@@ -31,6 +31,7 @@ import {
   Leaf,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS, PAGINATION, LISTING_STATUS } from "@/constants/api";
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -47,8 +48,8 @@ const Marketplace = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(PAGINATION.DEFAULT_PAGE);
+  const itemsPerPage = PAGINATION.ITEMS_PER_PAGE.MARKETPLACE;
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
@@ -59,11 +60,10 @@ const Marketplace = () => {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
       const params = {
         page: currentPage,
         limit: itemsPerPage,
-        status: 'Available',
+        status: LISTING_STATUS.AVAILABLE,
       };
       
       if (filters.title) params.search = filters.title;
@@ -71,7 +71,7 @@ const Marketplace = () => {
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (sortOrder) params.sortBy = `pricePerCredit:${sortOrder}`;
 
-      const response = await axios.get(`${API_BASE_URL}/credits`, { params });
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.CREDITS.BASE}`, { params });
       const listings = response.data.data || [];
       setAllListings(listings);
       setFilteredListings(listings);
@@ -94,7 +94,7 @@ const Marketplace = () => {
   const applyFilters = (nextFilters = filters, nextSort = sortOrder) => {
     setFilters(nextFilters);
     setSortOrder(nextSort);
-    setCurrentPage(1);
+    setCurrentPage(PAGINATION.DEFAULT_PAGE);
   };
 
   const handleApplyFilters = () => {

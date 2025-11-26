@@ -1,33 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
-import Register from "./pages/Register";
-import VerifyOTP from "./pages/VerifyOTP";
-import Login from "./pages/Login";
-import Profile from "./pages/Profile";
+import { ProtectedRoute, PublicRoute } from "./components/layout";
+import { Register, VerifyOTP, Login, Profile } from "./features/auth";
 import { AuthProvider } from "./context/AuthContext";
-import AboutUs from "./pages/Aboutus";
-import CarbonEmissionCalculator from "./pages/Calculator";
+import { 
+  AboutUs, 
+  Calculator as CarbonEmissionCalculator, 
+  ContactUs, 
+  Blog, 
+  BlogDetail, 
+  ComingSoon,
+  ReceiptViewer,
+  TransactionPage
+} from "./features/shared";
 import Navbar from "./components/common/Navbar";
-import LandingPage from "./pages/LandingPage";
 import Footer from "./components/common/Footer";
-import SellerDashboardLayout from "./pages/SellerDashboar";
-import DataForm from "./pages/SellerPages/PopupForm";
-import ListingsPage from "./pages/SellerPages/AllListings";
-import SellerDashboard from "./pages/SellerPages/SellerDashboard";
-import ComingSoon from "./pages/comingsoon";
-import BuyerDashboard from "./pages/BuyerPages/BuyerDashboard";
-import BuyerDashboardLayout from "./pages/BuyerDashboard";
-import Marketplace from "./pages/BuyerPages/Marketplace";
-import ContactUs from "./pages/ContactUs";
-import TransactionPage from "./pages/Transaction/TransactionPage";
-import TransactionListing from "./pages/BuyerPages/TransactionListing";
-import Blog from "./pages/Blog";
-import BlogDetail from "./pages/BlogDetail";
-import AdminDashboard from "./pages/AdminDashboard";
-import SellerAnalytics from "./pages/SellerPages/SellerAnalytics";
-import BuyerAnalytics from "./pages/BuyerPages/BuyerAnalytics";
-import ReceiptViewer from "./pages/ReceiptViewer";
+import { LandingPage } from "./features/landing";
+import { 
+  SellerDashboardLayout, 
+  SellerDashboard, 
+  AllListings as ListingsPage,
+  PopupForm as DataForm,
+  SellerAnalytics 
+} from "./features/seller";
+import { 
+  BuyerDashboardLayout, 
+  BuyerDashboard, 
+  Marketplace,
+  TransactionListing,
+  BuyerAnalytics 
+} from "./features/buyer";
+import { AdminDashboard } from "./features/admin";
 
 const App = () => {
   return (

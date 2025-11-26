@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   ArrowUpRight,
 } from "lucide-react";
-import FormComponent from "@/pages/SellerPages/PopupForm";
+import FormComponent from "@/features/seller/pages/PopupForm";
 
 const navigation = [
   { name: "Dashboard Overview", href: "/seller-dashboard", icon: BarChart3 },

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
+import config from "../config/index.js";
 
 const connect = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/carbonEase";
-    await mongoose.connect(mongoUri);
+    await mongoose.connect(config.mongodb.uri);
     logger.info("MongoDb connected successfully");
   } catch (error) {
     logger.error("MongoDb connection error:", error);

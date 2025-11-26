@@ -1,5 +1,6 @@
 import logger from "../utils/logger.js";
 import jwt from "jsonwebtoken";
+import config from "../config/index.js";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -13,7 +14,7 @@ const authMiddleware = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, config.jwt.secret, (err, user) => {
     if (err) {
       logger.warn("Invalid token!");
       return res.status(403).json({
@@ -28,3 +29,4 @@ const authMiddleware = (req, res, next) => {
 };
 
 export default authMiddleware;
+export { authMiddleware };

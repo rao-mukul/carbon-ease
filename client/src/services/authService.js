@@ -1,22 +1,22 @@
 import { toast } from "@/hooks/use-toast";
-import API from "../utils/api";
+import api from "@/lib/api";
 
 export const registerUser = async (email, password) => {
-  return API.post("/register", { email, password });
+  return api.post("/auth/register", { email, password });
 };
 
 export const verifyOTP = async (email, otp) => {
-  return API.post("/verify-otp", { email, otp });
+  return api.post("/auth/verify-otp", { email, otp });
 };
 
 export const loginUser = async (email, password) => {
-  const { data } = await API.post("/login", { email, password });
+  const { data } = await api.post("/auth/login", { email, password });
   localStorage.setItem("token", data.token);
   return data;
 };
 
 export const getProfile = async () => {
-  return API.get("/profile");
+  return api.get("/auth/profile");
 };
 
 export const logoutUser = () => {

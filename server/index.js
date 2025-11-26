@@ -1,12 +1,8 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import connect from "./src/db/index.js";
 import logger from "./src/utils/logger.js";
-
-// Load environment variables
-dotenv.config();
-
+import config from "./src/config/index.js";
 
 // Initialize Express app
 const app = express();
@@ -33,7 +29,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 // Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 try {
   await connect();

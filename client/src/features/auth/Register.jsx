@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { loginUser } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { registerUser } from "@/services/authService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -12,32 +12,43 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, Mail, Lock, CheckCircle, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Lock, CheckCircle, Sparkles } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import auth from "../../public/auth.jpg";
-import { toast } from "sonner";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { setUser } = useAuth();
+  const [agreed, setAgreed] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
+    if (!agreed) {
+      toast({
+        title: "Terms & Conditions",
+        description:
+          "You must agree to the terms and conditions before registering.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     setError("");
+
     try {
-      const { user } = await loginUser(email, password);
-      setUser(user);
-      toast.success("Login successful! Redirecting to home...");
-      setTimeout(() => {
-        navigate("/");
-        window.location.reload();
-      }, 2000);
+      await registerUser(email, password);
+      toast({
+        title: "OTP Sent",
+        description:
+          "An OTP has been sent to your email. Please verify your account.",
+        variant: "default",
+      });
+      navigate("/verify-otp", { state: { email } });
     } catch (error) {
-      setError("Invalid email or password. Please try again.");
-      toast.error("Login failed. Please check your credentials.");
+      setError(error.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -45,30 +56,31 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 via-transparent to-transparent dark:from-emerald-500/20" />
-      <div className="absolute -left-16 top-32 hidden h-80 w-80 rounded-full bg-brandMainColor/20 blur-3xl dark:bg-brandSubColor/15 lg:block" />
-      <div className="absolute right-12 top-10 h-32 w-32 rounded-full bg-lime-400/20 blur-3xl dark:bg-lime-300/10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-brandMainColor/15 via-transparent to-transparent dark:from-brandSubColor/15" />
+      <div className="absolute left-10 top-24 hidden h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl dark:bg-emerald-400/10 lg:block" />
+      <div className="absolute right-12 bottom-12 h-56 w-56 rounded-full bg-lime-300/20 blur-3xl dark:bg-lime-200/10" />
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl items-center px-6 py-16 lg:px-0">
-        <div className="grid w-full gap-12 lg:grid-cols-[1.1fr,0.9fr]">
+        <div className="grid w-full gap-12 lg:grid-cols-[1.05fr,0.95fr]">
           <div className="space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 text-sm font-medium text-primary dark:text-primary-foreground">
-              <CheckCircle className="h-4 w-4" />
-              Secure climate intelligence access
+              <Sparkles className="h-4 w-4" />
+              Begin your CarbonEase journey
             </span>
             <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              Welcome back to CarbonEase
+              Create an account to unlock verified climate action
             </h1>
-            <p className="max-w-xl text-lg text-muted-foreground">
-              Sign in to manage offsets, monitor project performance, and keep
-              your sustainability roadmap on track.
+            <p className="max-w-2xl text-lg text-muted-foreground">
+              Build a shared workspace for your sustainability, finance, and
+              procurement teams. CarbonEase keeps project due diligence, offset
+              forecasting, and reporting in one place.
             </p>
             <div className="grid max-w-xl gap-4 sm:grid-cols-2">
               {[
-                "Unified emissions dashboard",
-                "Procurement-ready reports",
-                "Real-time project diligence",
-                "Collaborative task flows",
+                "Launch collaborative offset planning",
+                "Track retirements across portfolios",
+                "Access curated, high-integrity credits",
+                "Export audit-ready ESG documentation",
               ].map((item) => (
                 <div
                   key={item}
@@ -82,30 +94,29 @@ const Login = () => {
             <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/80 p-4 text-sm text-muted-foreground">
               <img
                 src={auth}
-                alt="CarbonEase platform"
+                alt="CarbonEase preview"
                 className="h-12 w-12 rounded-full object-cover"
               />
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  New to CarbonEase?
-                </p>
+              <p>
+                Already onboarded?{" "}
                 <Link
-                  to="/register"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-brandMainColor transition-colors hover:text-brandMainColor/80 dark:text-brandSubColor dark:hover:text-brandSubColor/90"
+                  to="/login"
+                  className="font-medium text-brandMainColor transition-colors hover:text-brandMainColor/80 dark:text-brandSubColor dark:hover:text-brandSubColor/90"
                 >
-                  Create your account <ArrowRight className="h-4 w-4" />
+                  Sign in instead
                 </Link>
-              </div>
+              </p>
             </div>
           </div>
 
           <Card className="border border-border/70 bg-card/90 shadow-2xl backdrop-blur-sm">
             <CardHeader className="space-y-2 text-center">
               <CardTitle className="text-2xl font-semibold text-foreground">
-                Sign in
+                Create your CarbonEase account
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Use your email and password to access your dashboard.
+                We&apos;ll email you a verification code to confirm your
+                workspace.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -140,25 +151,41 @@ const Login = () => {
                     required
                   />
                 </div>
+
+                <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-sm text-muted-foreground">
+                  <Checkbox
+                    id="terms"
+                    checked={agreed}
+                    onCheckedChange={(checked) => setAgreed(checked === true)}
+                  />
+                  <label htmlFor="terms" className="leading-relaxed">
+                    I agree to the
+                    <a
+                      href="/terms"
+                      className="ml-1 font-medium text-brandMainColor hover:underline dark:text-brandSubColor"
+                    >
+                      Terms & Conditions
+                    </a>
+                    .
+                  </label>
+                </div>
               </div>
 
               <Button
-                onClick={handleLogin}
+                onClick={handleRegister}
                 disabled={loading}
                 className="h-12 w-full rounded-xl bg-brandMainColor text-sm font-semibold text-white transition-colors hover:bg-brandMainColor/90 dark:bg-brandSubColor dark:text-slate-950 dark:hover:bg-brandSubColor/90"
               >
                 {loading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : (
-                  "Login"
+                  "Register"
                 )}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
-                Forgot your password?{" "}
-                <span className="font-medium text-foreground/80">
-                  Contact your workspace admin
-                </span>
+                By continuing, you agree to receive onboarding communications
+                about CarbonEase.
               </p>
             </CardContent>
           </Card>
@@ -168,4 +195,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
