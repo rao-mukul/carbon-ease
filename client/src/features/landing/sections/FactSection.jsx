@@ -10,52 +10,52 @@ import {
 
 const reviews = [
   {
-    name: "Global Carbon Impact",
-    username: "@carbon_impact",
-    body: "A staggering 36.3 billion metric tons of CO2 are emitted globally each year. We must act now to reduce this number!",
-    img: <FaGlobeAmericas className="text-3xl text-red-500" />, // Globe icon with red color
-    bgClass: "bg-red-100",
-    textClass: "text-red-800",
+    name: "Carbon Market Growth",
+    username: "@carbon_markets",
+    body: "The voluntary carbon market is projected to reach $100 billion by 2030, growing 15x from 2021 levels. Join the climate revolution!",
+    img: <FaGlobeAmericas className="text-3xl text-emerald-600" />,
+    bgClass: "bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20",
+    textClass: "text-emerald-900 dark:text-emerald-100",
   },
   {
-    name: "Climate Crisis Alert",
-    username: "@climate_alert",
-    body: "The global average temperature has risen by 1.1°C since the pre-industrial era. This is a serious concern for future generations.",
-    img: <FaTemperatureHigh className="text-3xl text-yellow-500" />, // Temperature icon with yellow color
-    bgClass: "bg-yellow-100",
-    textClass: "text-yellow-800",
+    name: "Temperature Rising",
+    username: "@climate_science",
+    body: "Global temperatures have risen 1.2°C since pre-industrial times. Every 0.1°C matters - we must limit warming to 1.5°C by 2030.",
+    img: <FaTemperatureHigh className="text-3xl text-orange-600" />,
+    bgClass: "bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20",
+    textClass: "text-orange-900 dark:text-orange-100",
   },
   {
-    name: "Renewable Energy Progress",
-    username: "@renewable_energy",
-    body: "29% of global electricity comes from renewable energy sources. We are making progress, but there's still a long way to go!",
-    img: <FaRecycle className="text-3xl text-green-500" />, // Recycle icon with green color
-    bgClass: "bg-green-100",
-    textClass: "text-green-800",
+    name: "Renewable Revolution",
+    username: "@clean_energy",
+    body: "Renewable energy now accounts for 35% of global electricity in 2025! Solar and wind are now the cheapest sources of power.",
+    img: <FaRecycle className="text-3xl text-green-600" />,
+    bgClass: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20",
+    textClass: "text-green-900 dark:text-green-100",
   },
   {
-    name: "Deforestation Crisis",
+    name: "Forest Conservation",
     username: "@forest_guardian",
-    body: "4.7 million hectares of forest are lost each year. We need more initiatives to preserve our forests and biodiversity.",
-    img: <FaTree className="text-3xl text-green-600" />, // Tree icon with green color
-    bgClass: "bg-green-200",
-    textClass: "text-green-900",
+    body: "Reforestation projects can sequester 10 gigatons of CO₂ annually by 2050. Plant trees, buy credits, make a difference!",
+    img: <FaTree className="text-3xl text-lime-600" />,
+    bgClass: "bg-gradient-to-br from-lime-50 to-lime-100 dark:from-lime-900/20 dark:to-lime-800/20",
+    textClass: "text-lime-900 dark:text-lime-100",
   },
   {
-    name: "Eco-Friendly Marketplace",
-    username: "@eco_marketplace",
-    body: "125,000 credits have been traded on our eco-friendly platform, helping create a positive impact on the environment.",
-    img: <FaLeaf className="text-3xl text-teal-500" />, // Leaf icon with teal color
-    bgClass: "bg-teal-100",
-    textClass: "text-teal-800",
+    name: "Corporate Commitments",
+    username: "@net_zero_2030",
+    body: "Over 5,000 companies have committed to net-zero emissions by 2030. Carbon credits are essential to achieving these goals.",
+    img: <FaLeaf className="text-3xl text-teal-600" />,
+    bgClass: "bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20",
+    textClass: "text-teal-900 dark:text-teal-100",
   },
   {
-    name: "Sustainable Projects",
-    username: "@sustainable_projects",
-    body: "230 projects focused on sustainability have been launched globally, providing innovative solutions to climate challenges.",
-    img: <FaLeaf className="text-3xl text-teal-500" />, // Leaf icon with teal color
-    bgClass: "bg-teal-100",
-    textClass: "text-teal-800",
+    name: "India's Climate Action",
+    username: "@india_climate",
+    body: "India aims for 500 GW renewable capacity by 2030 and net-zero by 2070. CarbonEase supports this transition with verified credits.",
+    img: <FaLeaf className="text-3xl text-emerald-700" />,
+    bgClass: "bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30",
+    textClass: "text-emerald-950 dark:text-emerald-50",
   },
 ];
 
@@ -92,9 +92,16 @@ const ReviewCard = ({ img, name, username, body, bgClass, textClass }) => {
 
 export function FactSection() {
   return (
-    <div className="relative flex h-[500px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background md:shadow-xl">
-  
-      <Marquee pauseOnHover className="[--duration:20s]">
+    <div className="relative flex h-[600px] w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-background via-brandMainColor/5 to-background">
+      <div className="absolute top-8 z-10 text-center px-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-brandMainColor dark:text-brandSubColor mb-2">
+          Climate Facts & Market Insights
+        </h2>
+        <p className="text-muted-foreground dark:text-white/70 max-w-2xl mx-auto">
+          Stay informed with the latest climate statistics and carbon market trends
+        </p>
+      </div>
+      <Marquee pauseOnHover className="[--duration:25s] mt-24">
         {firstRow.map((review, index) => (
           <ReviewCard key={index} {...review} />
         ))}

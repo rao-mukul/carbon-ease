@@ -10,25 +10,26 @@ import {
 } from "recharts";
 
 const data = [
-  { year: "2000", emissions: 24.0 },
-  { year: "2005", emissions: 29.3 },
-  { year: "2010", emissions: 33.5 },
   { year: "2015", emissions: 35.9 },
+  { year: "2016", emissions: 36.2 },
+  { year: "2017", emissions: 36.5 },
   { year: "2018", emissions: 36.6 },
   { year: "2019", emissions: 36.7 },
   { year: "2020", emissions: 34.7 },
   { year: "2021", emissions: 36.3 },
   { year: "2022", emissions: 37.1 },
-  { year: "2023", emissions: 37.0 },
+  { year: "2023", emissions: 37.4 },
+  { year: "2024", emissions: 37.8 },
+  { year: "2025", emissions: 38.2 },
 ];
 
 const StatsSection = () => {
   return (
-    <section className="flex w-full flex-col items-center justify-between gap-10 bg-background py-10 px-6 lg:flex-row">
+    <section className="flex w-full flex-col items-center justify-between gap-10 bg-gradient-to-b from-background via-teal-50/20 to-cyan-50/20 dark:from-background dark:via-teal-950/5 dark:to-cyan-950/5 py-10 px-6 lg:flex-row">
       {/* Left: Graph Section */}
       <div className="w-full lg:w-2/3 h-[350px] flex flex-col items-center">
-        <h2 className="mb-6 text-center text-2xl font-bold text-foreground lg:text-left">
-          Global CO₂ Emissions (2000 - 2023)
+        <h2 className="mb-6 text-center text-2xl font-bold text-brandMainColor dark:text-brandSubColor lg:text-left">
+          Global CO₂ Emissions (2015 - 2025)
         </h2>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -64,47 +65,47 @@ const StatsSection = () => {
       </div>
 
       {/* Right: About Section */}
-      <div className="w-full rounded-lg border border-border bg-card p-6 shadow-sm lg:w-1/3">
-        <h3 className="text-xl font-semibold text-foreground">
-          About the Graph
+      <div className="w-full rounded-2xl border border-border/70 bg-gradient-to-br from-card/95 to-card/80 p-6 shadow-xl backdrop-blur-sm lg:w-1/3">
+        <h3 className="text-xl font-semibold text-brandMainColor dark:text-brandSubColor">
+          Understanding the Data
         </h3>
         <p className="mt-3 text-muted-foreground dark:text-white/85">
-          This graph represents <b>global CO₂ emissions</b> from{" "}
-          <b>2000 to 2023</b> in <b>billion metric tons</b>. Tracking emissions
-          is crucial for understanding climate change trends.
+          This graph tracks <b>global CO₂ emissions</b> from{" "}
+          <b>2015 to 2025</b> in <b>billion metric tons</b>. Understanding these trends
+          is critical for climate action and carbon markets.
         </p>
 
         <ul className="mt-4 space-y-2 text-sm text-muted-foreground dark:text-white/85">
           <li>
-            ✅ Emissions increased significantly from <b>2000 (24.0)</b> to{" "}
-            <b>2019 (36.7)</b>
+            🌍 Peak emissions of <b>38.2 billion metric tons</b> projected for <b>2025</b>
           </li>
           <li>
-            ✅ A slight dip occurred in <b>2020 (34.7)</b>, likely due to global
-            lockdowns.
+            📉 COVID-19 caused a historic drop in <b>2020 (34.7)</b>, but emissions rebounded
           </li>
           <li>
-            ✅ Emissions are rising again, reaching{" "}
-            <b>37.0 billion metric tons in 2023</b>.
+            📈 Current trajectory shows <b>3% increase</b> since 2020, highlighting urgent need for action
           </li>
         </ul>
 
-        <h4 className="mt-5 text-lg font-semibold text-foreground">
-          Why This Data Matters
+        <h4 className="mt-5 text-lg font-semibold text-brandMainColor dark:text-brandSubColor">
+          Why CarbonEase Matters
         </h4>
         <p className="mt-2 text-muted-foreground dark:text-white/85">
-          In a <b>carbon credit trading platform</b>, understanding CO₂ trends
-          helps businesses and individuals:
+          With the <b>voluntary carbon market</b> projected to reach <b>$100B by 2030</b>,
+          understanding emissions helps you:
         </p>
         <ul className="mt-3 space-y-1 text-sm text-muted-foreground dark:text-white/85">
           <li>
-            📌 Buy or sell <strong>carbon credits</strong> to offset emissions.
+            💰 Trade <strong>verified carbon credits</strong> transparently and securely
           </li>
           <li>
-            📌 Measure the impact of <b>emission reduction strategies</b>.
+            🎯 Achieve <b>net-zero goals</b> through measurable offset strategies
           </li>
           <li>
-            📌 Make informed decisions on <b>climate-conscious investments</b>.
+            🌱 Support <b>renewable energy projects</b> worldwide
+          </li>
+          <li>
+            📊 Track real-time impact with <b>blockchain-verified transactions</b>
           </li>
         </ul>
       </div>
