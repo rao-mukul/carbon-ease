@@ -232,12 +232,12 @@ export const deleteAllListings = async (req, res) => {
 export const getPostedListingForUser = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const postedDataByUser = await userModel
+    const userData = await userModel
       .findById(userId)
       .populate("posted")
       .select("posted");
 
-    if (!postedDataByUser) {
+    if (!userData) {
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -246,7 +246,7 @@ export const getPostedListingForUser = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: postedDataByUser,
+      posted: userData.posted || [],
     });
   } catch (error) {
     logger.error("Error fetching posted listings:", error);

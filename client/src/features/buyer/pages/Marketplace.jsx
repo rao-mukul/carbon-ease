@@ -425,10 +425,15 @@ const Marketplace = () => {
                           <MapPin className="h-4 w-4 text-brandMainColor" />
                           {listing.location || "Not specified"}
                         </div>
-                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                          <IndianRupee className="h-4 w-4 text-brandMainColor" />
-                          {Number(listing.pricePerCredit).toLocaleString()} /
-                          credit
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <IndianRupee className="h-4 w-4 text-brandMainColor" />
+                            {Number(listing.pricePerCredit).toLocaleString()} /
+                            credit
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {Number(listing.quantity).toLocaleString()} available
+                          </div>
                         </div>
                         <div className="rounded-2xl border border-border/60 bg-background/80 p-4 text-xs text-muted-foreground">
                           Includes verification reports, registry attestations,
@@ -437,16 +442,8 @@ const Marketplace = () => {
                         <Button
                           className="h-11 w-full rounded-xl bg-brandMainColor text-sm font-semibold text-white transition-colors hover:bg-brandMainColor/90 dark:bg-brandSubColor dark:text-slate-950 dark:hover:bg-brandSubColor/90"
                           onClick={() => {
-                            const pricePerCredit =
-                              Number(listing.pricePerCredit) || 0;
-                            const totalPrice =
-                              listing.totalPrice ?? pricePerCredit;
                             navigate(
-                              `/payment?id=${
-                                listing._id
-                              }&amount=${pricePerCredit}&title=${encodeURIComponent(
-                                listing.title
-                              )}&totalPrice=${totalPrice}`
+                              `/payment?id=${listing._id}&price=${listing.pricePerCredit}&title=${encodeURIComponent(listing.title)}&maxQuantity=${listing.quantity}`
                             );
                           }}
                         >

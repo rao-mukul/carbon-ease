@@ -1,16 +1,36 @@
 import nodemailer from "nodemailer";
 import config from "../config/index.js";
+import logger from "./logger.js";
 
-const transporter = nodemailer.createTransport({
-  service: config.email.service,
-  auth: {
-    user: config.email.user,
-    pass: config.email.pass,
-  },
-});
+// Check if email is configured
+const isEmailConfigured = config.email.user && 
+                          config.email.pass && 
+                          config.email.user !== "your-email@gmail.com";
+
+let transporter = null;
+
+if (isEmailConfigured) {
+  transporter = nodemailer.createTransport({
+    service: config.email.service,
+    auth: {
+      user: config.email.user,
+      pass: config.email.pass,
+    },
+  });
+  logger.info("Email service configured successfully");
+} else {
+  logger.warn("Email service not configured - OTP will be logged to console instead");
+}
 
 const sendMail = async (email, subject, text) => {
   try {
+    // If email is not configured, just log the OTP for development
+    if (!isEmailConfigured) {
+      logger.info(`[DEV MODE] OTP for ${email}: ${text.replace(/.*<h1[^>]*>([^<]+)<\/h1>.*/s, '$1') || text}`);
+      logger.info(`[DEV MODE] Email would have been sent with subject: ${subject}`);
+      return; // Don't throw error in development
+    }
+
     await transporter.sendMail({
       from: config.email.from,
       to: email,
@@ -26,8 +46,10 @@ const sendMail = async (email, subject, text) => {
                 </div>
             `,
     });
+    logger.info(`Email sent successfully to ${email}`);
   } catch (error) {
-    console.error("Email sending failed:", error);
+    logger.error("Email sending failed:", error.message);
+    // Don't throw error - allow registration to continue
   }
 };
 

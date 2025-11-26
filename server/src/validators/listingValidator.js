@@ -69,9 +69,10 @@ export const paymentSchema = Joi.object({
       "string.pattern.base": "Invalid listing ID",
       "any.required": "Listing ID is required",
     }),
-  quantity: Joi.number().integer().min(1).max(1000000000).required().messages({
+  quantity: Joi.number().positive().min(0.01).max(1000000000).required().messages({
     "number.base": "Quantity must be a number",
-    "number.min": "Quantity must be at least 1",
+    "number.positive": "Quantity must be a positive number",
+    "number.min": "Quantity must be at least 0.01",
     "number.max": "Quantity must not exceed 1 billion",
     "any.required": "Quantity is required",
   }),

@@ -36,23 +36,26 @@ const BuyerDashboard = () => {
           }
         );
 
-        console.log("Posted Data", response.data.data?.transactions);
+        console.log("Buyer Data", response.data);
 
-        const transactions = response.data.data?.transactions || [];
-        if (Array.isArray(transactions)) {
-          setRecentPurchases(transactions);
+        if (response.data?.success && Array.isArray(response.data?.data?.transactions)) {
+          setRecentPurchases(response.data.data.transactions);
 
           // Calculate the total amount spent
-          const total = transactions.reduce(
-            (sum, transaction) => sum + (transaction.totalAmount || 0),
+          const total = response.data.data.transactions.reduce(
+            (sum, transaction) => sum + (Number(transaction.totalAmount) || 0),
             0
           );
           setTotalAmount(total);
         } else {
           console.error("Invalid data format:", response.data);
+          setRecentPurchases([]);
+          setTotalAmount(0);
         }
       } catch (error) {
-        console.error("Error fetching listings:", error);
+        console.error("Error fetching buyer transactions:", error);
+        setRecentPurchases([]);
+        setTotalAmount(0);
       }
     };
 
@@ -109,7 +112,6 @@ const BuyerDashboard = () => {
                     View Analytics
                   </Link>
                 </Button>
-                <Button
                   asChild
                   variant="outline"
                   className="rounded-full border-border/70 text-sm font-semibold"
@@ -213,7 +215,7 @@ const BuyerDashboard = () => {
                       recentPurchases.slice(0, 5).map((order) => (
                         <TableRow key={order._id}>
                           <TableCell className="text-sm text-foreground">
-                            {order.seller?.name || "Unknown"}
+                            {order.seller?.name || order.seller?.email || "Unknown Seller"}
                           </TableCell>
                           <TableCell className="text-sm text-foreground">
                             {Number(order.quantity || 0).toLocaleString()} credits

@@ -26,20 +26,21 @@ const TransactionPage = () => {
   const { token } = useAuth();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
-  const amount = searchParams.get("amount");
+  const pricePerCredit = Number(searchParams.get("price")) || 0;
   const title = searchParams.get("title");
-  const totalPrice = searchParams.get("totalPrice");
-
-  console.log("Payment Data:", { id, amount, title, totalPrice });
+  const maxQuantity = Number(searchParams.get("maxQuantity")) || 1;
 
   const navigate = useNavigate();
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [quantity, setQuantity] = useState(1);
   const [formData, setFormData] = useState({
     cardNumber: "",
     expiry: "",
     cvv: "",
     upiId: "",
   });
+
+  const totalPrice = pricePerCredit * quantity;
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,7 +50,7 @@ const TransactionPage = () => {
     try {
       const payload = {
         listingId: id,
-        quantity: Number(amount),
+        quantity: Number(quantity),
         paymentMethod,
       };
 
@@ -66,6 +67,8 @@ const TransactionPage = () => {
       );
 
       if (response.status === 200 && response.data.success) {
+        const transactionId = response.data.data.transactionId;
+        
         toast.success(
           <div className="flex items-center gap-3">
             <img
@@ -83,7 +86,7 @@ const TransactionPage = () => {
           { duration: 4000 }
         );
         setTimeout(() => {
-          navigate("/buyer");
+          navigate(`/receipt/${transactionId}`);
         }, 2000);
       } else {
         throw new Error("Payment failed. Please try again.");
@@ -93,9 +96,6 @@ const TransactionPage = () => {
       console.error("Payment Error:", error);
     }
   };
-
-  const formattedPrice = Number(amount || 0).toLocaleString();
-  const formattedTotal = Number(totalPrice || 0).toLocaleString();
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
@@ -248,7 +248,7 @@ const TransactionPage = () => {
                 className="h-12 w-full rounded-xl bg-brandMainColor text-sm font-semibold text-white hover:bg-brandMainColor/90 dark:bg-brandSubColor dark:text-slate-950 dark:hover:bg-brandSubColor/90"
                 onClick={handlePayment}
               >
-                Confirm and pay ₹{formattedTotal}
+                Confirm and pay ₹{totalPrice.toLocaleString()}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
                 By paying, you acknowledge the purchase of verified carbon
@@ -265,7 +265,7 @@ const TransactionPage = () => {
                 Order summary
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Review the project information, pricing, and retirement impact.
+                Review the project information, pricing, and quantity.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -277,16 +277,37 @@ const TransactionPage = () => {
                   {title || "Carbon credit listing"}
                 </p>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="quantity">Quantity (credits)</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  max={maxQuantity}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.min(Math.max(1, Number(e.target.value)), maxQuantity))}
+                  className="text-lg font-semibold"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum available: {maxQuantity.toLocaleString()} credits
+                </p>
+              </div>
               <div className="flex justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
                 <span className="text-muted-foreground">Price per credit</span>
                 <span className="font-semibold text-foreground">
-                  ₹{formattedPrice}
+                  ₹{pricePerCredit.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between rounded-2xl border border-border/70 bg-background/80 p-4 text-sm">
-                <span className="text-muted-foreground">Total payable</span>
+                <span className="text-muted-foreground">Quantity</span>
                 <span className="font-semibold text-foreground">
-                  ₹{formattedTotal}
+                  {quantity.toLocaleString()} credits
+                </span>
+              </div>
+              <div className="flex justify-between rounded-2xl border border-primary/30 bg-primary/10 p-4 text-lg font-bold">
+                <span className="text-foreground">Total payable</span>
+                <span className="text-foreground">
+                  ₹{totalPrice.toLocaleString()}
                 </span>
               </div>
               <div className="rounded-2xl border border-primary/30 bg-primary/10 p-4 text-sm text-primary dark:text-primary-foreground/90">

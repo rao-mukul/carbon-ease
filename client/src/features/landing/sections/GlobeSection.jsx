@@ -20,8 +20,8 @@ function GlobeSection() {
       <Globe className="top-36 z-0 absolute w-full h-full object-cover" />
       {/* Buttons */}
       <div className="absolute bottom-12 flex gap-8 justify-center w-full px-6 sm:px-0">
-        <Link to="/buyer">
-          {/* Link to "About Us" page */}
+        <Link to="/marketplace">
+          {/* Link to Marketplace */}
           <PulsatingButton className="bg-card text-brandMainColor shadow-2xl transition-colors duration-200 hover:bg-brandMainColor/10">
             <span className="flex items-center gap-2 whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight lg:text-lg">
               <ShoppingCart className="w-5 h-5 text-brandMainColor" /> Buy
@@ -30,13 +30,15 @@ function GlobeSection() {
             </span>
           </PulsatingButton>
         </Link>
-        <Link to="/seller">
-          {/* Link to "Credits Calculator" page */}
-          <button className="flex items-center justify-center gap-2 whitespace-pre-wrap rounded-md border-2 border-brandMainColor bg-card px-4 py-2 text-center text-sm font-medium leading-none tracking-tight text-brandMainColor transition-colors duration-200 hover:bg-brandMainColor/10 dark:bg-muted lg:text-lg">
-            <DollarSign className="h-5 w-5 text-brandMainColor" /> Sell your
-            Credits
-            <ArrowRight className="h-5 w-5 text-brandMainColor" />{" "}
-          </button>
+        <Link to="/dashboard">
+          {/* Link to Seller Dashboard */}
+          <PulsatingButton className="bg-card text-brandMainColor shadow-2xl border-2 border-brandMainColor transition-colors duration-200 hover:bg-brandMainColor/10">
+            <span className="flex items-center gap-2 whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight lg:text-lg">
+              <DollarSign className="w-5 h-5 text-brandMainColor" /> Sell your
+              Credits
+              <ArrowRight className="w-5 h-5 text-brandMainColor" />{" "}
+            </span>
+          </PulsatingButton>
         </Link>
       </div>
       <GridPattern

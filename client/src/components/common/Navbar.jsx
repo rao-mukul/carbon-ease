@@ -25,6 +25,12 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           <Link
+            to="/calculator"
+            className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
+          >
+            Calculator
+          </Link>
+          <Link
             to="/about"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
           >
@@ -37,32 +43,27 @@ const Navbar = () => {
             Contact Us
           </Link>
           <Link
-            to="/calculator"
-            className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
-          >
-            Emission Calculator
-          </Link>
-          <Link
             to="/blog"
             className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
           >
             Blog
           </Link>
-          {user?.role === "admin" ? (
+          {user?.role === "admin" && (
             <Link
               to="/admin"
               className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
             >
               Admin Panel
             </Link>
-          ) : user ? (
+          )}
+          {user?.role === "user" && (
             <Link
               to="/dashboard"
               className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
             >
               Dashboard
             </Link>
-          ) : null}
+          )}
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -105,6 +106,13 @@ const Navbar = () => {
                 <img src={logo} alt="CarbonEase logo" width={140} />
               </Link>
               <Link
+                to="/calculator"
+                onClick={closeSheet}
+                className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
+              >
+                Calculator
+              </Link>
+              <Link
                 to="/about"
                 onClick={closeSheet}
                 className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
@@ -119,20 +127,13 @@ const Navbar = () => {
                 Contact Us
               </Link>
               <Link
-                to="/calculator"
-                onClick={closeSheet}
-                className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
-              >
-                Emission Calculator
-              </Link>
-              <Link
                 to="/blog"
                 onClick={closeSheet}
                 className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
               >
                 Blog
               </Link>
-              {user?.role === "admin" ? (
+              {user?.role === "admin" && (
                 <Link
                   to="/admin"
                   onClick={closeSheet}
@@ -140,7 +141,8 @@ const Navbar = () => {
                 >
                   Admin Panel
                 </Link>
-              ) : user ? (
+              )}
+              {user?.role === "user" && (
                 <Link
                   to="/dashboard"
                   onClick={closeSheet}
@@ -148,7 +150,7 @@ const Navbar = () => {
                 >
                   Dashboard
                 </Link>
-              ) : null}
+              )}
               <div className="mt-2 border-t border-border pt-4">
                 {user ? (
                   <Button

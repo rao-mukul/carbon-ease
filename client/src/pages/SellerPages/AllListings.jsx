@@ -288,8 +288,8 @@ const ListingsPage = () => {
                       </span>
                     </TableCell>
                   </TableRow>
-                )}
-                {!loading && filteredListings.length > 0 && filteredListings.map((listing) => {
+                ) : null}
+                {!isLoading && filteredListings.length > 0 && filteredListings.map((listing) => {
                     const status = listing.status || "Available";
                     let badgeVariant = "secondary";
                     if (status === "Available") {
@@ -358,7 +358,7 @@ const ListingsPage = () => {
                       </TableRow>
                     );
                   })}
-                {!loading && filteredListings.length === 0 && (
+                {!isLoading && filteredListings.length === 0 && (
                   <TableRow>
                     <TableCell
                       colSpan={6}

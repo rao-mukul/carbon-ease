@@ -5,7 +5,7 @@ import logger from "../utils/logger.js";
 // Get seller analytics
 export const getSellerAnalytics = async (req, res) => {
   try {
-    const sellerId = req.user._id;
+    const sellerId = req.user.userId;
 
     // Get all transactions where user is seller
     const transactions = await Transaction.find({
@@ -136,7 +136,7 @@ export const getSellerAnalytics = async (req, res) => {
 // Get buyer analytics
 export const getBuyerAnalytics = async (req, res) => {
   try {
-    const buyerId = req.user._id;
+    const buyerId = req.user.userId;
 
     // Get all transactions where user is buyer
     const transactions = await Transaction.find({

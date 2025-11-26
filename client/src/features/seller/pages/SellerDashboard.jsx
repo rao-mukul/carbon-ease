@@ -36,17 +36,21 @@ const formatCurrency = (value) => {
 const SellerDashboard = () => {
   const { user, token } = useAuth();
   const [recentPurchases, setRecentPurchases] = useState([]);
+  const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchListings = async () => {
+    const fetchData = async () => {
       if (!token) {
         return;
       }
       setIsLoading(true);
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/credits/payment-data",
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+        
+        // Fetch transactions
+        const transactionsResponse = await axios.get(
+          `${API_BASE_URL}/credits/payment-data`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -54,20 +58,37 @@ const SellerDashboard = () => {
           }
         );
 
-        if (Array.isArray(response.data.data?.sellerTransactions)) {
-          setRecentPurchases(response.data.data.sellerTransactions);
+        if (Array.isArray(transactionsResponse.data.data?.sellerTransactions)) {
+          setRecentPurchases(transactionsResponse.data.data.sellerTransactions);
         } else {
           setRecentPurchases([]);
         }
+
+        // Fetch listings
+        const listingsResponse = await axios.get(
+          `${API_BASE_URL}/credits/posted-data`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (Array.isArray(listingsResponse.data?.posted)) {
+          setListings(listingsResponse.data.posted);
+        } else {
+          setListings([]);
+        }
       } catch (error) {
-        console.error("Error fetching listings:", error);
+        console.error("Error fetching data:", error);
         setRecentPurchases([]);
+        setListings([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchListings();
+    fetchData();
   }, [token]);
 
   const metrics = useMemo(() => {
@@ -85,6 +106,10 @@ const SellerDashboard = () => {
       const status = (transaction.paymentStatus || "").toLowerCase();
       return status === "pending";
     }).length;
+    const activeListings = listings.filter(
+      (listing) => listing.status === "Available"
+    ).length;
+    const totalListings = listings.length;
 
     return {
       totalRevenue,
@@ -92,8 +117,10 @@ const SellerDashboard = () => {
       totalOrders,
       avgDealSize,
       pendingOrders,
+      activeListings,
+      totalListings,
     };
-  }, [recentPurchases]);
+  }, [recentPurchases, listings]);
 
   const overviewCards = [
     {
@@ -104,23 +131,22 @@ const SellerDashboard = () => {
       description: "Total earnings from completed sales",
     },
     {
+      title: "Active Listings",
+      value: metrics.activeListings,
+      icon: <PackageCheck className="h-4 w-4 text-primary" />,
+      description: `${metrics.totalListings} total listings created`,
+    },
+    {
       title: "Credits sold",
       value: metrics.totalCreditsSold,
-      icon: <PackageCheck className="h-4 w-4 text-primary" />,
+      icon: <CheckCircle className="h-4 w-4 text-primary" />,
       description: "Volume moved across all transactions",
     },
     {
       title: "Orders",
       value: metrics.totalOrders,
-      icon: <CheckCircle className="h-4 w-4 text-primary" />,
-      description: "Fulfilled and in-progress deals",
-    },
-    {
-      title: "Avg deal size",
-      value: metrics.avgDealSize,
       icon: <User className="h-4 w-4 text-primary" />,
-      isCurrency: true,
-      description: "Mean revenue per transaction",
+      description: "Fulfilled and in-progress deals",
     },
   ];
 
@@ -181,6 +207,80 @@ const SellerDashboard = () => {
             </Card>
           ))}
         </div>
+      </section>
+
+      <section className="mt-10 px-8 pb-10">
+        <Card className="border border-border/70 bg-card/90 shadow-xl">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-semibold">Your Listings</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Manage your carbon credit listings
+                </p>
+              </div>
+              <Button asChild variant="outline">
+                <Link to="/listings">
+                  View All
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : listings.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {listings.slice(0, 5).map((listing) => (
+                    <TableRow key={listing._id}>
+                      <TableCell className="font-medium">{listing.title}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{listing.projectType}</Badge>
+                      </TableCell>
+                      <TableCell>{Number(listing.quantity || 0).toLocaleString()}</TableCell>
+                      <TableCell>₹{Number(listing.pricePerCredit || 0).toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            listing.status === "Available"
+                              ? "default"
+                              : listing.status === "Sold"
+                              ? "secondary"
+                              : "outline"
+                          }
+                        >
+                          {listing.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="py-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No listings yet. Create your first listing to get started.
+                </p>
+                <Button asChild className="mt-4" variant="outline">
+                  <Link to="/form">Create Listing</Link>
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </section>
     </div>
   );

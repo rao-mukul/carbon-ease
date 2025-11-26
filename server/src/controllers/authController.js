@@ -2,6 +2,9 @@ import User from "../models/userModel.js";
 import OTP from "../models/otpModel.js";
 import sendMail from "../utils/mailer.js";
 import logger from "../utils/logger.js";
+import config from "../config/index.js";
+
+const isDevelopment = config.nodeEnv === "development";
 
 export const register = async (req, res) => {
   try {
@@ -15,8 +18,24 @@ export const register = async (req, res) => {
       });
     }
 
-    const newUser = new User({ email, password });
+    // In development mode without email config, auto-verify users
+    const autoVerify = isDevelopment && (!config.email.user || config.email.user === "your-email@gmail.com");
+
+    const newUser = new User({ 
+      email, 
+      password,
+      isVerified: autoVerify // Auto-verify in development without email config
+    });
     await newUser.save();
+
+    if (autoVerify) {
+      logger.info(`[DEV MODE] User ${email} auto-verified (email not configured)`);
+      return res.status(201).json({ 
+        success: true,
+        message: "Registration successful. Account auto-verified for development.",
+        autoVerified: true
+      });
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -30,7 +49,7 @@ export const register = async (req, res) => {
       expiresIn: "10 minutes"
     });
   } catch (error) {
-    logger.error("Login error:", error);
+    logger.error("Registration error:", error);
     res.status(500).json({ 
       success: false,
       message: error.message 
@@ -40,7 +59,7 @@ export const register = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
     const { name, company, phone } = req.body;
 
     const updateData = {};

@@ -18,13 +18,15 @@ import Footer from "./components/common/Footer";
 import { LandingPage } from "./features/landing";
 import { 
   AllListings as ListingsPage,
-  PopupForm as DataForm,
+  CreateListingPage,
 } from "./features/seller";
 import { 
   Marketplace,
   TransactionListing,
 } from "./features/buyer";
 import { AdminDashboard } from "./features/admin";
+import BuyerAnalytics from "./features/buyer/pages/BuyerAnalytics";
+import SellerAnalytics from "./features/seller/pages/SellerAnalytics";
 
 const App = () => {
   return (
@@ -45,14 +47,8 @@ const App = () => {
                 <Route path="/verify-otp" element={<VerifyOTP />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/about" element={<AboutUs />} />
-                <Route
-                  path="/calculator"
-                  element={<CarbonEmissionCalculator />}
-                />
-                <Route path="/form" element={<DataForm />} />
-                <Route path="/listings" element={<ListingsPage />} />
+                <Route path="/calculator" element={<CarbonEmissionCalculator />} />
                 <Route path="/coming" element={<ComingSoon />} />
-                <Route path="/market" element={<Marketplace />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogDetail />} />
@@ -67,15 +63,47 @@ const App = () => {
                   </RoleBasedRoute>
                 } />
                 
-                {/* Legacy routes - redirect to dashboard */}
-                <Route path="/buyer" element={<UserDashboard />} />
-                <Route path="/seller" element={<UserDashboard />} />
-                
-                {/* Transaction routes */}
-                <Route path="/payment" element={<TransactionPage />} />
-                <Route path="/transaction-listing" element={<TransactionListing />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/listings" element={<ListingsPage />} />
+                {/* User Routes - for buying and selling */}
+                <Route path="/marketplace" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <Marketplace />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/market" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <Marketplace />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/listings" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <ListingsPage />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/form" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <CreateListingPage />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/payment" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <TransactionPage />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/transaction-listing" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <TransactionListing />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/buyer-analytics" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <BuyerAnalytics />
+                  </RoleBasedRoute>
+                } />
+                <Route path="/seller-analytics" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <SellerAnalytics />
+                  </RoleBasedRoute>
+                } />
                 
                 {/* Admin Routes - accessible by admin only */}
                 <Route path="/admin" element={
