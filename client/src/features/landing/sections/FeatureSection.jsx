@@ -61,9 +61,9 @@ const Notification = ({ name, description, icon, gradient }) => {
       </p>
     </div>
   );
-};
+}
 
-export function FeatureSection({ className }) {
+function FeatureSection({ className }) {
   return (
     <section
       className={cn(
@@ -87,3 +87,5 @@ export function FeatureSection({ className }) {
     </section>
   );
 }
+
+export default FeatureSection;

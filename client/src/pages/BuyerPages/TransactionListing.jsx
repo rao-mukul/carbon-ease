@@ -22,7 +22,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const TransactionListing = () => {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [recentPurchases, setRecentPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ const TransactionListing = () => {
           }
         );
 
-        setRecentPurchases(response.data.data?.transactions || []);
+        setRecentPurchases(response.data.transactions);
       } catch (error) {
         console.error("Error fetching listings:", error);
       } finally {
@@ -130,8 +130,8 @@ const TransactionListing = () => {
         <section className="mt-10 space-y-10">
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {loading ? (
-              [...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-32" />
+              [...new Array(3)].map((_, i) => (
+                <Skeleton key={`skeleton-${i}`} className="h-32" />
               ))
             ) : (
               overviewData.map((item) => (
@@ -188,7 +188,7 @@ const TransactionListing = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {loading ? (
+                  {loading && (
                     <TableRow>
                       <TableCell colSpan={5} className="py-10">
                         <div className="flex justify-center">
@@ -196,7 +196,8 @@ const TransactionListing = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : recentPurchases.length > 0 ? (
+                  )}
+                  {!loading && recentPurchases.length > 0 && (
                     recentPurchases.map((order) => (
                       <TableRow key={order._id}>
                         <TableCell className="font-mono text-sm text-muted-foreground">
@@ -215,7 +216,7 @@ const TransactionListing = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate(`/receipt/${order._id}`)}
+                            onClick={() => navigate(`/receipt/${order._id}`)}}
                           >
                             <Download className="mr-2 h-4 w-4" />
                             Receipt
@@ -223,7 +224,8 @@ const TransactionListing = () => {
                         </TableCell>
                       </TableRow>
                     ))
-                  ) : (
+                  )}
+                  {!loading && recentPurchases.length === 0 && (
                     <TableRow>
                       <TableCell
                         colSpan={5}

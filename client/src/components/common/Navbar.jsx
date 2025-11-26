@@ -48,14 +48,21 @@ const Navbar = () => {
           >
             Blog
           </Link>
-          {user?.role === "admin" && (
+          {user?.role === "admin" ? (
             <Link
               to="/admin"
               className="text-sm font-medium text-primary transition-colors hover:text-primary/80"
             >
               Admin Panel
             </Link>
-          )}
+          ) : user ? (
+            <Link
+              to="/dashboard"
+              className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
+            >
+              Dashboard
+            </Link>
+          ) : null}
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -125,7 +132,7 @@ const Navbar = () => {
               >
                 Blog
               </Link>
-              {user?.role === "admin" && (
+              {user?.role === "admin" ? (
                 <Link
                   to="/admin"
                   onClick={closeSheet}
@@ -133,7 +140,15 @@ const Navbar = () => {
                 >
                   Admin Panel
                 </Link>
-              )}
+              ) : user ? (
+                <Link
+                  to="/dashboard"
+                  onClick={closeSheet}
+                  className="text-sm font-medium text-foreground/80 transition-colors hover:text-brandMainColor"
+                >
+                  Dashboard
+                </Link>
+              ) : null}
               <div className="mt-2 border-t border-border pt-4">
                 {user ? (
                   <Button

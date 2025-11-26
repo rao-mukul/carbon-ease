@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ProtectedRoute, PublicRoute } from "./components/layout";
+import { ProtectedRoute, PublicRoute, RoleBasedRoute } from "./components/layout";
 import { Register, VerifyOTP, Login, Profile } from "./features/auth";
 import { AuthProvider } from "./context/AuthContext";
 import { 
@@ -12,22 +12,17 @@ import {
   ReceiptViewer,
   TransactionPage
 } from "./features/shared";
+import UserDashboard from "./features/shared/UserDashboard";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 import { LandingPage } from "./features/landing";
 import { 
-  SellerDashboardLayout, 
-  SellerDashboard, 
   AllListings as ListingsPage,
   PopupForm as DataForm,
-  SellerAnalytics 
 } from "./features/seller";
 import { 
-  BuyerDashboardLayout, 
-  BuyerDashboard, 
   Marketplace,
   TransactionListing,
-  BuyerAnalytics 
 } from "./features/buyer";
 import { AdminDashboard } from "./features/admin";
 
@@ -56,8 +51,6 @@ const App = () => {
                 />
                 <Route path="/form" element={<DataForm />} />
                 <Route path="/listings" element={<ListingsPage />} />
-                <Route path="/seller-dashboard" element={<SellerDashboard />} />
-                <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
                 <Route path="/coming" element={<ComingSoon />} />
                 <Route path="/market" element={<Marketplace />} />
                 <Route path="/contact" element={<ContactUs />} />
@@ -67,17 +60,32 @@ const App = () => {
 
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
+                {/* User Dashboard - accessible by all users except admin */}
+                <Route path="/dashboard" element={
+                  <RoleBasedRoute allowedRoles={["user"]}>
+                    <UserDashboard />
+                  </RoleBasedRoute>
+                } />
+                
+                {/* Legacy routes - redirect to dashboard */}
+                <Route path="/buyer" element={<UserDashboard />} />
+                <Route path="/seller" element={<UserDashboard />} />
+                
+                {/* Transaction routes */}
                 <Route path="/payment" element={<TransactionPage />} />
-                <Route path="/buyer" element={<BuyerDashboardLayout />} />
-                <Route
-                  path="/transaction-listing"
-                  element={<TransactionListing />}
-                />
+                <Route path="/transaction-listing" element={<TransactionListing />} />
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/listings" element={<ListingsPage />} />
+                
+                {/* Admin Routes - accessible by admin only */}
+                <Route path="/admin" element={
+                  <RoleBasedRoute allowedRoles={["admin"]}>
+                    <AdminDashboard />
+                  </RoleBasedRoute>
+                } />
+                
+                {/* Common Protected Routes */}
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/seller" element={<SellerDashboardLayout />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/seller-analytics" element={<SellerAnalytics />} />
-                <Route path="/buyer-analytics" element={<BuyerAnalytics />} />
                 <Route path="/receipt/:transactionId" element={<ReceiptViewer />} />
               </Route>
 

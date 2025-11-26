@@ -38,6 +38,7 @@ const VerifyOTP = () => {
       });
       navigate("/login");
     } catch (error) {
+      console.error("OTP verification error:", error);
       setError("Invalid OTP. Please try again.");
     } finally {
       setLoading(false);

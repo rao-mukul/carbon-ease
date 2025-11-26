@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import { getProfile, logoutUser } from "@/services/authService";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -29,6 +30,10 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export const useAuth = () => useContext(AuthContext);

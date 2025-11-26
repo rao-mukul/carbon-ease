@@ -40,7 +40,7 @@ const AdminDashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(`${API_BASE_URL}/admin/users`, {
-          params: { page: currentPage, limit: 10, search: searchTerm, role: roleFilter },
+          params: { page: currentPage, limit: 10, search: searchTerm, role: roleFilter === "all" ? "" : roleFilter },
           headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get(`${API_BASE_URL}/admin/transactions`, {
@@ -287,10 +287,8 @@ const AdminDashboard = () => {
                     <SelectValue placeholder="All roles" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All roles</SelectItem>
-                    <SelectItem value="buyer">Buyer</SelectItem>
-                    <SelectItem value="seller">Seller</SelectItem>
-                    <SelectItem value="both">Both</SelectItem>
+                    <SelectItem value="all">All roles</SelectItem>
+                    <SelectItem value="user">User</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
@@ -330,16 +328,14 @@ const AdminDashboard = () => {
                         <TableCell>{u.name || "—"}</TableCell>
                         <TableCell>
                           <Select
-                            value={u.role || "buyer"}
+                            value={u.role || "user"}
                             onValueChange={(value) => updateUserRole(u._id, value)}
                           >
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="buyer">Buyer</SelectItem>
-                              <SelectItem value="seller">Seller</SelectItem>
-                              <SelectItem value="both">Both</SelectItem>
+                              <SelectItem value="user">User</SelectItem>
                               <SelectItem value="admin">Admin</SelectItem>
                             </SelectContent>
                           </Select>

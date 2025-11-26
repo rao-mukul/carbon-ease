@@ -9,7 +9,7 @@ const config = {
 
   // Database Configuration
   mongodb: {
-    uri: process.env.MONGODB_URI || "mongodb://localhost:27017/carbonease",
+    uri: process.env.MONGODB_URI || "mongodb://localhost:27017/carbonEase",
   },
 
   // JWT Configuration

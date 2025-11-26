@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "@/services/authService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Loader2, Mail, Lock, CheckCircle, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import auth from "../../public/auth.jpg";
+import auth from "/auth.jpg";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -159,7 +159,7 @@ const Register = () => {
                     onCheckedChange={(checked) => setAgreed(checked === true)}
                   />
                   <label htmlFor="terms" className="leading-relaxed">
-                    I agree to the
+                    I agree to the{" "}
                     <a
                       href="/terms"
                       className="ml-1 font-medium text-brandMainColor hover:underline dark:text-brandSubColor"

@@ -1,7 +1,7 @@
 import AccordionSection from "./sections/AccordionSection";
-import { FactSection } from "./sections/FactSection";
-import { FeatureSection } from "./sections/FeatureSection";
-import { GlobeSection } from "./sections/GlobeSection";
+import FactSection from "./sections/FactSection";
+import FeatureSection from "./sections/FeatureSection";
+import GlobeSection from "./sections/GlobeSection";
 import StatsSection from "./sections/StatsSection";
 import GeminiChatbot from "@/components/common/GeminiChatbot";
 

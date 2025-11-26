@@ -36,13 +36,14 @@ const BuyerDashboard = () => {
           }
         );
 
-        console.log("Posted Data", response.data.transactions);
+        console.log("Posted Data", response.data.data?.transactions);
 
-        if (Array.isArray(response.data.transactions)) {
-          setRecentPurchases(response.data.transactions);
+        const transactions = response.data.data?.transactions || [];
+        if (Array.isArray(transactions)) {
+          setRecentPurchases(transactions);
 
           // Calculate the total amount spent
-          const total = response.data.transactions.reduce(
+          const total = transactions.reduce(
             (sum, transaction) => sum + (transaction.amount || 0),
             0
           );
@@ -108,6 +109,7 @@ const BuyerDashboard = () => {
                     View Analytics
                   </Link>
                 </Button>
+                <Button
                   asChild
                   variant="outline"
                   className="rounded-full border-border/70 text-sm font-semibold"

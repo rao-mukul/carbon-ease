@@ -260,27 +260,49 @@ export const getPostedListingForUser = async (req, res) => {
 export const getTransactionData = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const userData = await userModel
-      .findById(userId)
-      .populate({
-        path: "transactions",
-        populate: [
-          { path: "listing", select: "title description projectType" },
-          { path: "seller", select: "email" },
-        ],
-      })
-      .select("transactions totalSpents");
-
-    if (!userData) {
+    const user = await userModel.findById(userId).select("role");
+    
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
 
+    // Get both buyer and seller transactions for regular users
+    // Admin only sees admin-specific data
+    let buyerTransactions = [];
+    let sellerTransactions = [];
+    
+    if (user.role !== "admin") {
+      // Get seller transactions
+      sellerTransactions = await transactionsModel
+        .find({ seller: userId })
+        .populate("listing", "title description projectType")
+        .populate("buyer", "email name")
+        .sort({ createdAt: -1 });
+      
+      // Get buyer transactions
+      const userData = await userModel
+        .findById(userId)
+        .populate({
+          path: "transactions",
+          populate: [
+            { path: "listing", select: "title description projectType" },
+            { path: "seller", select: "email name" },
+          ],
+        })
+        .select("transactions");
+      
+      buyerTransactions = userData?.transactions || [];
+    }
+
     return res.status(200).json({
       success: true,
-      data: userData,
+      data: {
+        transactions: buyerTransactions,
+        sellerTransactions: sellerTransactions,
+      },
     });
   } catch (error) {
     logger.error("Error fetching transaction data:", error);
@@ -292,21 +314,18 @@ export const getTransactionData = async (req, res) => {
 };
 
 export const makePayment = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const buyerId = req.user.userId;
     const { listingId, quantity, paymentMethod } = req.body;
 
     // 1. Validate buyer exists
-    const buyer = await userModel.findById(buyerId).session(session);
+    const buyer = await userModel.findById(buyerId);
     if (!buyer) {
       throw new Error("Buyer not found");
     }
 
     // 2. Find and validate listing
-    const listing = await CarbonCredit.findById(listingId).session(session);
+    const listing = await CarbonCredit.findById(listingId);
     if (!listing) {
       throw new Error("Listing not found");
     }
@@ -339,7 +358,7 @@ export const makePayment = async (req, res) => {
         status: newStatus,
         updatedAt: Date.now(),
       },
-      { session, new: true }
+      { new: true }
     );
 
     // 6. Create transaction record
@@ -356,7 +375,7 @@ export const makePayment = async (req, res) => {
       completedAt: Date.now(),
     });
 
-    await transaction.save({ session });
+    await transaction.save();
 
     // 7. Update buyer's transaction history and spending
     await userModel.findByIdAndUpdate(
@@ -364,8 +383,7 @@ export const makePayment = async (req, res) => {
       {
         $push: { transactions: transaction._id },
         $inc: { totalSpents: totalAmount },
-      },
-      { session }
+      }
     );
 
     // 8. Update seller's credits sold
@@ -373,12 +391,8 @@ export const makePayment = async (req, res) => {
       listing.seller,
       {
         $inc: { totalCredits: quantity },
-      },
-      { session }
+      }
     );
-
-    // Commit the transaction
-    await session.commitTransaction();
 
     // Send email notifications (non-blocking)
     const populatedTransaction = await transactionsModel
@@ -422,15 +436,12 @@ export const makePayment = async (req, res) => {
       },
     });
   } catch (error) {
-    await session.abortTransaction();
     logger.error("Payment failed:", error);
     
     return res.status(400).json({
       success: false,
       message: error.message || "Payment failed",
     });
-  } finally {
-    session.endSession();
   }
 };
 

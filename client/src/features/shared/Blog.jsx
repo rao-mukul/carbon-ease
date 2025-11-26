@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { blogPosts } from "@/constant/blogPosts";
+import { blogPosts } from "@/constants/blogPosts";
 
 const insights = [
   {

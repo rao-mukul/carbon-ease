@@ -1,11 +1,11 @@
-import { Globe } from "@/components/globe";
-import { GridPattern } from "@/components/grid-pattern";
-import { PulsatingButton } from "@/components/pulsating-button";
+import { Globe } from "@/components/animations/globe";
+import { GridPattern } from "@/components/animations/grid-pattern";
+import { PulsatingButton } from "@/components/animations/pulsating-button";
 import { cn } from "@/lib/utils";
 import { ArrowRight, DollarSign, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export function GlobeSection() {
+function GlobeSection() {
   return (
     <section className="relative flex min-h-[90vh] justify-center overflow-hidden bg-background px-6 md:px-40 md:pb-40">
       {/* Title and description */}
@@ -50,9 +50,9 @@ export function GlobeSection() {
           [12, 15],
           [15, 10],
           [10, 15],
-          [15, 10],
-          [10, 15],
-          [15, 10],
+          [18, 12],
+          [13, 8],
+          [16, 14],
         ]}
         className={cn(
           "[mask-image:radial-gradient(900px_circle_at_center,white,transparent)]",
@@ -62,3 +62,5 @@ export function GlobeSection() {
     </section>
   );
 }
+
+export default GlobeSection;

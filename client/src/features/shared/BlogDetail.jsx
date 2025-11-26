@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { CalendarDays, Clock, Tag } from "lucide-react";
 
-import { blogPosts } from "@/constant/blogPosts";
+import { blogPosts } from "@/constants/blogPosts";
 
 export default function BlogDetail() {
   const { slug } = useParams();

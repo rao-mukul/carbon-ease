@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "@/services/authService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Loader2, Mail, Lock, CheckCircle, ArrowRight } from "lucide-react";
-import auth from "../../public/auth.jpg";
+import auth from "/auth.jpg";
 import { toast } from "sonner";
 
 const Login = () => {
@@ -33,9 +33,10 @@ const Login = () => {
       toast.success("Login successful! Redirecting to home...");
       setTimeout(() => {
         navigate("/");
-        window.location.reload();
+        globalThis.location.reload();
       }, 2000);
     } catch (error) {
+      console.error("Login error:", error);
       setError("Invalid email or password. Please try again.");
       toast.error("Login failed. Please check your credentials.");
     } finally {

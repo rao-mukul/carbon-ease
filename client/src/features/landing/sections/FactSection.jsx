@@ -1,4 +1,4 @@
-import { Marquee } from "@/components/marquee";
+import { Marquee } from "@/components/animations/marquee";
 import { cn } from "@/lib/utils";
 import {
   FaLeaf,
@@ -109,3 +109,5 @@ export function FactSection() {
     </div>
   );
 }
+
+export default FactSection;

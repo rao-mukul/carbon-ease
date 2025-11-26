@@ -11,7 +11,7 @@ export const verifyOTP = async (email, otp) => {
 
 export const loginUser = async (email, password) => {
   const { data } = await api.post("/auth/login", { email, password });
-  localStorage.setItem("token", data.token);
+  localStorage.setItem("authToken", data.token);
   return data;
 };
 
@@ -20,8 +20,11 @@ export const getProfile = async () => {
 };
 
 export const logoutUser = () => {
-  localStorage.removeItem("token");
+  localStorage.removeItem("authToken");
   toast({
     title: "Logout Successfully",
-  })
+  });
+  setTimeout(() => {
+    window.location.href = "/login";
+  }, 500);
 };
