@@ -1,7 +1,7 @@
 import CarbonCredit from "../models/Listing.js";
 import transactionsModel from "../models/transactionsModel.js";
 import userModel from "../models/userModel.js";
-import { logger } from "../utils/logger.js";
+// import { logger } from "../utils/logger.js";
 
 export const getChatbotContext = async (req, res) => {
   try {
